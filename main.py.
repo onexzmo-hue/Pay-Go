@@ -1,1 +1,106 @@
 
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.core.window import Window
+from kivy.uix.popup import Popup
+
+Window.clearcolor = (0.94, 0.97, 1, 1)
+
+class PayGo(App):
+    def build(self):
+        self.balance = 1000
+        self.transactions = []
+        root = BoxLayout(
+            orientation="vertical",
+            padding=20,
+            spacing=12
+        )
+
+        root.add_widget(Label(
+            text="[b]PAY GO[/b]",
+            markup=True,
+            font_size=32,
+            color=(0.05, 0.25, 0.65, 1),
+            size_hint_y=None,
+            height=65
+        ))
+
+        self.balance_label = Label(
+            text="الرصيد التجريبي\n1000 EGP",
+            font_size=25,
+            color=(0.05, 0.25, 0.65, 1)
+        )
+        root.add_widget(self.balance_label)
+
+        for title, action in [
+            ("إضافة 100 جنيه تجريبي", self.deposit),
+            ("سحب 50 جنيه تجريبي", self.withdraw),
+            ("سجل المعاملات", self.history),
+            ("لوحة الأدمن", self.admin),
+            ("الاستفسارات: 01289498465", self.contact)
+        ]:
+            btn = Button(
+                text=title,
+                size_hint_y=None,
+                height=52,
+                background_normal="",
+                background_color=(0.05, 0.25, 0.65, 1)
+            )
+            btn.bind(on_release=action)
+            root.add_widget(btn)
+
+        root.add_widget(Label(
+            text="Powered by MOHAMED ALI",
+            size_hint_y=None,
+            height=35,
+            color=(0.05, 0.25, 0.65, 1)
+        ))
+        return root
+
+    def update_balance(self):
+        self.balance_label.text = (
+            f"الرصيد التجريبي\n{self.balance} EGP"
+        )
+
+    def popup(self, title, message):
+        Popup(
+            title=title,
+            content=Label(text=message),
+            size_hint=(0.85, 0.4)
+        ).open()
+
+    def deposit(self, *args):
+        self.balance += 100
+        self.transactions.append("إضافة تجريبية: +100 EGP")
+        self.update_balance()
+        self.popup("Pay Go", "تمت إضافة رصيد افتراضي")
+
+    def withdraw(self, *args):
+        if self.balance >= 50:
+            self.balance -= 50
+            self.transactions.append("سحب تجريبي: -50 EGP")
+            self.update_balance()
+            self.popup("Pay Go", "تم خصم رصيد افتراضي")
+        else:
+            self.popup("تنبيه", "الرصيد التجريبي غير كافٍ")
+
+    def history(self, *args):
+        self.popup(
+            "سجل المعاملات",
+            "\n".join(self.transactions) or "لا توجد معاملات"
+        )
+
+    def admin(self, *args):
+        self.popup(
+            "لوحة الأدمن",
+            "اللوحة الكاملة وتسجيل دخول الأدمن لم يتم إعدادها بعد."
+        )
+
+    def contact(self, *args):
+        self.popup("الاستفسارات", "01289498465")
+
+if __name__ == "__main__":
+    PayGo().run()
+
